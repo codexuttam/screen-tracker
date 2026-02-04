@@ -30,19 +30,15 @@ def get_idle_time():
     except:
         return 0
 
-
 def get_active_app():
     try:
-        wid = int(subprocess.check_output(["xdotool", "getactivewindow"]).decode())
-        wid_hex = f"0x{wid:08x}"
+        pid = subprocess.check_output(
+            ["xdotool", "getwindowfocus", "getwindowpid"]
+        ).decode().strip()
+        return psutil.Process(int(pid)).name().replace(".exe", "")
+    except Exception:
+        return None
 
-        for line in subprocess.check_output(["wmctrl", "-lp"]).decode().splitlines():
-            parts = line.split(None, 4)
-            if parts[0].lower() == wid_hex:
-                return psutil.Process(int(parts[2])).name()
-    except:
-        pass
-    return None
 
 
 def log_time(app):
